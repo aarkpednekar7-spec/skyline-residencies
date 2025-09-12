@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* design tokens */
+:root{
+  --bg:#0b0f19;
+  --card:#0f1524;
+  --muted:#9aa4b2;
+  --accent:#51e5a8;
+}
+
+html,body{height:100%}
+body{
+  color:#fff;
+  background:
+    radial-gradient(80rem 80rem at 10% -20%, #142037, transparent 60%),
+    radial-gradient(60rem 60rem at 120% 0%, #0f1b33, transparent 50%),
+    var(--bg);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* tiny utility helpers without @apply */
+.container{max-width:1200px;margin:0 auto;padding:0 1rem}
+.section{padding:5rem 0}
+.card{border-radius:20px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);backdrop-filter:blur(6px)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.1rem;border-radius:12px;border:1px solid transparent;transition:transform .15s ease,opacity .15s ease;cursor:pointer}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--accent);color:#0b0f19}
+.btn-outline{border-color:rgba(255,255,255,.22)}
+.badge{display:inline-block;padding:.25rem .6rem;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:var(--muted);font-size:.85rem}
