@@ -285,6 +285,7 @@ export default function Home() {
           <h2>Book a Site Visit</h2>
           <p className="muted">
             We'll call you back within working hours. Or email us at{" "}
+
             <span className="accent">info@skylineresidencies.com</span>.
           </p>
 
