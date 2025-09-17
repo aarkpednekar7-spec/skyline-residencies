@@ -284,7 +284,9 @@ export default function Home() {
         <div className="container">
           <h2>Book a Site Visit</h2>
           <p className="muted">
-            We'll call you back within working hours. Or email us at{" "}
+            {/* eslint-disable-next-line react/no-unescaped-entities */}
+gitWe'll call you back within working hours. Or email us at{" "}
+
 
             <span className="accent">info@skylineresidencies.com</span>.
           </p>
