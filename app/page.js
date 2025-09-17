@@ -1,13 +1,10 @@
 "use client";
 
 /**
- * SKYLINE RESIDENCIES — FULL LANDING PAGE (robust images)
- * - Uses stable Pexels URLs for all photos (works immediately)
- * - Has a built-in SVG data-URI fallback if any image fails
- * - Smooth scrolling + link styling + professional layout
- *
- * Later, if you add local files to /public/images (2bhk.jpg, 3bhk.jpg, penthouse.jpg, g1..g6.jpg),
- * just replace the URLs in `properties` and `gallery` with "/images/xxx.jpg" and it will still work.
+ * Skyline Residencies — full landing page
+ * - Robust images (Pexels) + fallback
+ * - Contact form POSTs to /api/enquiry (Nodemailer)
+ * - Correct/closed CSS blocks (fixes "Unexpected eof")
  */
 
 // Build a data-URI fallback SVG that always displays if an image fails.
@@ -24,6 +21,7 @@ const getFallbackDataUri = (text = "Image Unavailable") => {
 
 // Robust <img> wrapper with guaranteed fallback.
 const Img = ({ src, alt }) => (
+  // eslint-disable-next-line @next/next/no-img-element
   <img
     src={src}
     alt={alt}
@@ -31,8 +29,11 @@ const Img = ({ src, alt }) => (
       e.currentTarget.onerror = null;
       e.currentTarget.src = getFallbackDataUri(alt || "Image Unavailable");
     }}
+    style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
   />
 );
+
+import { useState } from "react";
 
 export default function Home() {
   // ---- data ----
@@ -40,7 +41,7 @@ export default function Home() {
     { t: "Clubhouse", s: "15,000 sq.ft lifestyle hub" },
     { t: "Infinity Pool", s: "Temperature controlled" },
     { t: "Fitness Studio", s: "Cardio + weights" },
-    { t: "Kids’ Play", s: "Indoor & outdoor" },
+    { t: "Kids' Play", s: "Indoor & outdoor" },
     { t: "Skydeck", s: "Cityline sunsets" },
     { t: "EV Charging", s: "Basement stations" },
   ];
@@ -90,6 +91,53 @@ export default function Home() {
     "https://images.pexels.com/photos/259962/pexels-photo-259962.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&dpr=1",
     "https://images.pexels.com/photos/1169156/pexels-photo-1169156.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&dpr=1",
   ];
+
+  // ---- form state ----
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // ---- submit handler ----
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (submitting) return;
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone, message }),
+      });
+
+      // Log the raw response for debugging
+      console.log("Raw Response:", res);
+
+      const data = await res.json();
+
+      // Log the parsed data for debugging
+      console.log("Parsed Data:", data);
+
+      if (!res.ok || !data || data.ok === false) {
+        console.error("ENQUIRY_ERROR", { res_ok: res.ok, data });
+
+        alert("Sorry, your enquiry could not be sent. Please try again.");
+      } else {
+        alert("Thank you! We'll get back to you shortly.");
+        setName("");
+        setEmail("");
+        setPhone("");
+        setMessage("");
+      }
+    } catch (err) {
+      console.error("ENQUIRY_FETCH_ERROR", err);
+      alert("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -222,7 +270,7 @@ export default function Home() {
               src="https://maps.google.com/maps?q=Bengaluru&t=&z=12&ie=UTF8&iwloc=&output=embed"
               width="100%"
               height="420"
-              style={{ border: 0 }}
+              style={{ border: 0, display: "block" }}
               loading="lazy"
               allowFullScreen
               referrerPolicy="no-referrer-when-downgrade"
@@ -235,39 +283,58 @@ export default function Home() {
       <section id="contact" className="section">
         <div className="container">
           <h2>Book a Site Visit</h2>
-        <p className="muted">
-            We’ll call you back within working hours. Or mail us at{" "}
-            <a href="mailto:info@skylineresidencies.com">
-              info@skylineresidencies.com
-            </a>
-            .
+          <p className="muted">
+            We'll call you back within working hours. Or email us at{" "}
+            <span className="accent">info@skylineresidencies.com</span>.
           </p>
-          <form
-            className="card card-pad form"
-            action="mailto:info@skylineresidencies.com"
-            method="post"
-            encType="text/plain"
-          >
+
+          <form className="card card-pad form" onSubmit={handleSubmit} method="POST">
             <div className="grid-2">
               <div>
                 <label>Name</label>
-                <input placeholder="Your name" required />
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
               <div>
                 <label>Email</label>
-                <input type="email" placeholder="you@email.com" required />
+                <input
+                  type="email"
+                  placeholder="you@email.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
               <div>
                 <label>Phone</label>
-                <input placeholder="+91 XXXXX XXXXX" required />
+                <input
+                  type="tel"
+                  placeholder="+91 XXXXX XXXXX"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
               </div>
               <div>
                 <label>Message</label>
-                <input placeholder="Any specific query?" />
+                <input
+                  type="text"
+                  placeholder="Any specific query?"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                />
               </div>
             </div>
+
             <div className="row">
-              <button className="btn btn-primary">Send Enquiry</button>
+              <button type="submit" className="btn btn-primary" disabled={submitting}>
+                {submitting ? "Sending..." : "Send Enquiry"}
+              </button>
               <a className="btn btn-outline" href="tel:+919876543210">
                 Call: +91 98765 43210
               </a>
@@ -299,42 +366,34 @@ export default function Home() {
             Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
         }
 
-        /* remove default blue/underline links */
+        /* neutralize default link underline/blue */
         :global(a),
         :global(a:visited) {
           color: inherit;
           text-decoration: none;
         }
-        :global(a:hover) {
-          text-decoration: none;
-        }
+        :global(a:hover) { text-decoration: none; }
 
         :global(html) {
           scroll-behavior: smooth; /* smooth anchor scrolling */
         }
 
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 16px;
-        }
-        .section {
-          padding: 80px 0;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+        .section { padding: 80px 0; }
         .card {
           border-radius: 20px;
           border: 1px solid rgba(255, 255, 255, 0.12);
           background: rgba(255, 255, 255, 0.05);
           backdrop-filter: blur(6px);
         }
-        .card-pad {
-          padding: 18px;
-        }
+        .card-pad { padding: 18px; }
+
         .media {
           overflow: hidden;
           border-top-left-radius: 20px;
           border-top-right-radius: 20px;
         }
+
         .btn {
           display: inline-flex;
           align-items: center;
@@ -346,16 +405,10 @@ export default function Home() {
           transition: transform 0.15s ease, opacity 0.15s ease;
           color: #fff;
         }
-        .btn:hover {
-          transform: translateY(-1px);
-        }
-        .btn-primary {
-          background: #51e5a8;
-          color: #0b0f19;
-        }
-        .btn-outline {
-          border-color: rgba(255, 255, 255, 0.22);
-        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary { background: #51e5a8; color: #0b0f19; }
+        .btn-outline { border-color: rgba(255, 255, 255, 0.22); }
+
         .badge {
           display: inline-block;
           padding: 4px 10px;
@@ -365,16 +418,11 @@ export default function Home() {
           color: #9aa4b2;
           font-size: 0.9rem;
         }
-        .muted {
-          color: #9aa4b2;
-        }
-        .muted.small {
-          font-size: 0.95rem;
-        }
-        .list {
-          margin-top: 10px;
-          line-height: 1.7;
-        }
+
+        .muted { color: #9aa4b2; }
+        .muted.small { font-size: 0.95rem; }
+        .list { margin-top: 10px; line-height: 1.7; }
+
         .row {
           display: flex;
           align-items: center;
@@ -383,18 +431,12 @@ export default function Home() {
           margin-top: 10px;
           flex-wrap: wrap;
         }
-        .row.between {
-          justify-content: space-between;
-        }
-        .overflow {
-          overflow: hidden;
-        }
+        .row.between { justify-content: space-between; }
+        .overflow { overflow: hidden; }
 
         /* Navbar */
         .nav {
-          position: sticky;
-          top: 0;
-          z-index: 50;
+          position: sticky; top: 0; z-index: 50;
           backdrop-filter: blur(6px);
           background: rgba(0, 0, 0, 0.3);
         }
@@ -404,22 +446,15 @@ export default function Home() {
           align-items: center;
           justify-content: space-between;
         }
-        .brand {
-          color: #51e5a8;
-          font-weight: 700;
-        }
+        .brand { color: #51e5a8; font-weight: 700; }
         .links {
           display: flex;
           align-items: center;
           gap: 24px;
           font-size: 0.95rem;
         }
-        .links a {
-          color: #fff;
-        }
-        .links a:hover {
-          color: #51e5a8;
-        }
+        .links a { color: #fff; }
+        .links a:hover { color: #51e5a8; }
 
         /* Hero */
         .hero {
@@ -434,25 +469,16 @@ export default function Home() {
           align-items: center;
           gap: 28px;
         }
-        .accent {
-          color: #51e5a8;
-        }
+        .accent { color: #51e5a8; }
         .hero h1 {
           font-size: clamp(32px, 5vw, 56px);
           line-height: 1.05;
           margin: 12px 0;
           font-weight: 800;
         }
-        .cta-row {
-          display: flex;
-          gap: 12px;
-          margin-top: 16px;
-          flex-wrap: wrap;
-        }
-        .meta {
-          margin-top: 12px;
-          font-size: 0.95rem;
-        }
+        .cta-row { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+        .meta { margin-top: 12px; font-size: 0.95rem; }
+
         .hero-card img {
           width: 100%;
           height: 100%;
@@ -473,12 +499,6 @@ export default function Home() {
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 16px;
           width: 100%;
-        }
-        .card img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
         }
 
         /* Forms */
@@ -503,27 +523,18 @@ export default function Home() {
           padding-top: 24px;
         }
 
-        /* Responsive */
+        /* Responsive — FIXED BRACES + CLOSURE */
         @media (max-width: 900px) {
-          .links {
-            gap: 14px;
-          }
-          .hero-inner {
-            grid-template-columns: 1fr;
-          }
-          .grid-3 {
-            grid-template-columns: 1fr 1fr;
-          }
+          .links { gap: 14px; }
+          .hero-inner { grid-template-columns: 1fr; }
+          .grid-3 { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 640px) {
-          .grid-3 {
-            grid-template-columns: 1fr;
-          }
-          .grid-2 {
-            grid-template-columns: 1fr;
-          }
+          .grid-3 { grid-template-columns: 1fr; }
+          .grid-2 { grid-template-columns: 1fr; }
         }
       `}</style>
     </>
   );
 }
+

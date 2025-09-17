@@ -2,18 +2,10 @@
 module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",   // 👈 important
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {
-    extend: {
-      colors: {
-        bg: "#0b0f19",
-        card: "#0f1524",
-        accent: "#51e5a8",
-        muted: "#9aa4b2",
-      },
-      borderRadius: { '2xl': '1.25rem' },
-    },
-  },
+  theme: { extend: {} },
   plugins: [],
-}
+};
+
+
