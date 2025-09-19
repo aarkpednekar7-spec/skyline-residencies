@@ -6,19 +6,18 @@ export async function POST(req) {
     const body = await req.json();
     const { name, email, phone, message } = body;
 
-    // setup transporter with Gmail + App Password
-    let transporter = nodemailer.createTransport({
+    // Change these variable names to match Vercel
+    let transporter = nodemailer.createTransporter({
       service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.GMAIL_USER,  // Changed from EMAIL_USER
+        pass: process.env.GMAIL_PASS,  // Changed from EMAIL_PASS
       },
     });
 
-    // send email
     await transporter.sendMail({
-      from: `"Skyline Website" <${process.env.EMAIL_USER}>`,
-      to: process.env.TO_EMAIL, // your email
+      from: `"Skyline Website" <${process.env.GMAIL_USER}>`, // Changed
+      to: process.env.TO_EMAIL, // This one was already correct
       subject: "New Enquiry from Skyline Website",
       text: `
         Name: ${name}
