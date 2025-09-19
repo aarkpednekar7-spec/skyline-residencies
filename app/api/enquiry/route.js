@@ -1,23 +1,30 @@
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 
+// GET method - for testing if API is working
+export async function GET() {
+  return NextResponse.json({ message: "API is working! Use POST to send enquiries." });
+}
+
+// POST method - for handling form submissions
 export async function POST(req) {
   try {
     const body = await req.json();
     const { name, email, phone, message } = body;
 
-    // Change these variable names to match Vercel
+    // Setup transporter with Gmail + App Password
     let transporter = nodemailer.createTransporter({
       service: "gmail",
       auth: {
-        user: process.env.GMAIL_USER,  // Changed from EMAIL_USER
-        pass: process.env.GMAIL_PASS,  // Changed from EMAIL_PASS
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
       },
     });
 
+    // Send email
     await transporter.sendMail({
-      from: `"Skyline Website" <${process.env.GMAIL_USER}>`, // Changed
-      to: process.env.TO_EMAIL, // This one was already correct
+      from: `"Skyline Website" <${process.env.GMAIL_USER}>`,
+      to: process.env.TO_EMAIL, // your email
       subject: "New Enquiry from Skyline Website",
       text: `
         Name: ${name}
