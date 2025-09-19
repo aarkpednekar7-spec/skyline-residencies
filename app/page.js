@@ -99,7 +99,7 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // ---- submit handler ----
+  // ---- FIXED submit handler ----
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting) return;
@@ -120,16 +120,16 @@ export default function Home() {
       // Log the parsed data for debugging
       console.log("Parsed Data:", data);
 
-      if (!res.ok || !data || data.ok === false) {
-        console.error("ENQUIRY_ERROR", { res_ok: res.ok, data });
-
-        alert("Sorry, your enquiry could not be sent. Please try again.");
-      } else {
+      // FIXED: Check for success correctly
+      if (res.ok && data.ok === true) {
         alert("Thank you! We'll get back to you shortly.");
         setName("");
         setEmail("");
         setPhone("");
         setMessage("");
+      } else {
+        console.error("ENQUIRY_ERROR", { res_ok: res.ok, data });
+        alert("Sorry, your enquiry could not be sent. Please try again.");
       }
     } catch (err) {
       console.error("ENQUIRY_FETCH_ERROR", err);
@@ -286,8 +286,6 @@ export default function Home() {
           <p className="muted">
             {/* eslint-disable-next-line react/no-unescaped-entities */}
 gitWe'll call you back within working hours. Or email us at{" "}
-
-
             <span className="accent">info@skylineresidencies.com</span>.
           </p>
 
@@ -540,4 +538,3 @@ gitWe'll call you back within working hours. Or email us at{" "}
     </>
   );
 }
-
